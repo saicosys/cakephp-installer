@@ -1,0 +1,26 @@
+#!/usr/bin/env php
+<?php
+/**
+ * CakePHP Installer CLI Entrypoint
+ *
+ * This script serves as the entry point for the CakePHP Installer command-line interface.
+ * It initializes the Symfony Console application and registers the NewCommand for project scaffolding.
+ *
+ * Usage:
+ *   php bin/cakephp [command]
+ *
+ * @package   Saicosys\Installer
+ * @author    Sandeep Kadyan <sandeepkadyan91@gmail.com>
+ * @copyright Copyright (c) 2015-present Saicosys Technologies
+ * @link https://www.saicosys.com
+ * @since 1.0.0
+ * @license MIT License (https://opensource.org/licenses/mit-license.php )
+ */
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use Saicosys\Installer\Command\NewCommand;
+use Symfony\Component\Console\Application;
+
+$application = new Application();
+$application->add(new NewCommand());
+$application->run();

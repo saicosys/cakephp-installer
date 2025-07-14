@@ -1,25 +1,27 @@
-# CakePHP 3
+# Composer
+/vendor/
+composer.lock
 
-/vendor/*
-/config/app.php
+# PHPUnit
+.phpunit.cache/
+.phpunit.result.cache
 
-/tmp/cache/models/*
-!/tmp/cache/models/empty
-/tmp/cache/persistent/*
-!/tmp/cache/persistent/empty
-/tmp/cache/views/*
-!/tmp/cache/views/empty
-/tmp/sessions/*
-!/tmp/sessions/empty
-/tmp/tests/*
-!/tmp/tests/empty
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
 
-/logs/*
-!/logs/empty
+# OS
+.DS_Store
+Thumbs.db
 
-# CakePHP 2
+# Logs
+*.log
 
-/app/tmp/*
-/app/Config/core.php
-/app/Config/database.php
-/vendors/*
+# Cache
+/cache/
+/tmp/
+
+# Test applications
+/test-apps/
