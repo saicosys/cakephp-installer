@@ -43,6 +43,15 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class NewCommand extends Command
 {
     /**
+     * Constructor to ensure command name and description are set for all Symfony Console versions.
+     */
+    public function __construct()
+    {
+        parent::__construct('new');
+        $this->setDescription('Create a new CakePHP application');
+    }
+
+    /**
      * The default command name for the installer.
      *
      * @var string
