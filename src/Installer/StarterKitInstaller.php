@@ -93,6 +93,7 @@ class StarterKitInstaller
             }
             // After install, configure DB, email, migrations
             $this->_configureDatabase($name);
+            $this->_updateSecurityAndDebug($name);
             $this->_configureEmail($name);
             $this->_runMigrations($name);
 
@@ -219,21 +220,6 @@ class StarterKitInstaller
         $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
         $cakeCmd = $isWindows ? ['php', 'bin/cake'] : ['bin/cake'];
 
-        // Load .env variables
-        $envFile = $name . '/config/.env';
-        $envVars = [];
-        if (file_exists($envFile)) {
-            // Read all lines from the .env file
-            $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-            foreach ($lines as $line) {
-                // Parse only non-commented lines with '='
-                if (strpos($line, '=') !== false && $line[0] !== '#') {
-                    [$k, $v] = explode('=', $line, 2);
-                    $envVars[$k] = $v;
-                }
-            }
-        }
-
         // Run the migrations command in the project directory
         $process = new Process(array_merge($cakeCmd, ['migrations', 'migrate', '-n']), $name);
         $process->setTimeout(120);
@@ -297,5 +283,27 @@ class StarterKitInstaller
         if ($result === false) {
             $this->io->warning("Could not write to $envFile. The file may be locked or in use by another process. Please close any editors or Composer processes and try again.");
         }
+    }
+
+    /**
+     * Update the security salt and debug value in the .env file.
+     *
+     * @param string $projectPath Path to the project directory
+     * @return void
+     */
+    private function _updateSecurityAndDebug(string $projectPath): void
+    {
+        // Generate a random 32-character salt
+        $salt = bin2hex(random_bytes(32));
+        // Prompt user for debug value, default to 'false'
+        $debug = $this->io->ask('Set debug mode? (true/false)', 'false');
+        $this->_updateEnvFile(
+            $projectPath,
+            [
+                'export SECURITY_SALT' => $salt,
+                'export DEBUG' => $debug,
+            ]
+        );
+        $this->io->success('Security salt and debug value updated in .env!');
     }
 } 
