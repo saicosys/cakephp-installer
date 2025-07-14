@@ -16,7 +16,29 @@
  * @since 1.0.0
  * @license MIT License (https://opensource.org/licenses/mit-license.php )
  */
-require_once __DIR__ . '/../vendor/autoload.php';
+
+// Try to load the Composer autoloader from various possible locations
+$autoloadFiles = [
+    __DIR__ . '/../vendor/autoload.php', // Local project
+    // Global Composer (Linux/macOS)
+    (getenv('COMPOSER_HOME') ? rtrim(getenv('COMPOSER_HOME'), DIRECTORY_SEPARATOR) . '/vendor/autoload.php' : null),
+    // Global Composer (Windows)
+    (getenv('APPDATA') ? rtrim(getenv('APPDATA'), DIRECTORY_SEPARATOR) . '/Composer/vendor/autoload.php' : null),
+];
+
+$autoloadFound = false;
+foreach ($autoloadFiles as $autoload) {
+    if ($autoload && file_exists($autoload)) {
+        require_once $autoload;
+        $autoloadFound = true;
+        break;
+    }
+}
+
+if (!$autoloadFound) {
+    fwrite(STDERR, "Autoloader not found. Please run 'composer install' or ensure Composer is installed globally.\n");
+    exit(1);
+}
 
 use Saicosys\Installer\Command\NewCommand;
 use Symfony\Component\Console\Application;
