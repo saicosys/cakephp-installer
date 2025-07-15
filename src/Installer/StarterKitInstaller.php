@@ -2,17 +2,18 @@
 declare(strict_types=1);
 
 /**
-* Copyright (c) 2017-present Saicosys Technologies (https://www.saicosys.com)
-*
-* Licensed under The MIT License
-* For full copyright and license information, please see the LICENSE.md
-* Redistributions of files must retain the above copyright notice.
-*
-* @copyright Copyright (c) 2015-present Saicosys Technologies
-* @link https://www.saicosys.com
-* @since 1.0.0
-* @license MIT License (https://opensource.org/licenses/mit-license.php )
-*/
+ * Copyright (c) 2017-present Saicosys Technologies (https://www.saicosys.com)
+ *
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.md
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @copyright Copyright (c) 2015-present Saicosys Technologies
+ * @link      https://www.saicosys.com
+ * @since     1.0.0
+ * @license   MIT License (https://opensource.org/licenses/mit-license.php )
+ */
+
 namespace Saicosys\Installer\Installer;
 
 use Saicosys\Installer\Service\SaasStarterKitService;
@@ -80,10 +81,13 @@ class StarterKitInstaller
         if (isset($this->starterKitServices[$starterKit])) {
             // Get the service class for the selected starter kit
             $serviceClass = $this->starterKitServices[$starterKit];
+
             // Instantiate the starter kit service with IO helper
             $service = new $serviceClass($this->io);
+
             // Run the install method of the starter kit service
             $service->install($name);
+
             // Set bin/cake as executable on Unix systems
             $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
             $cakePath = $name . '/bin/cake';
@@ -91,6 +95,7 @@ class StarterKitInstaller
                 // Make the cake script executable
                 @chmod($cakePath, 0755);
             }
+
             // After install, configure DB, email, migrations
             $this->_configureDatabase($name);
             $this->_updateSecurityAndDebug($name);
@@ -106,7 +111,7 @@ class StarterKitInstaller
 
         // Fallback: basic CakePHP install if starter kit is not found
         // Instantiate the basic installer
-        $basicInstaller = new CakePHPInstaller($this->io); 
+        $basicInstaller = new CakePHPInstaller($this->io);
 
         // Run the install method
         $basicInstaller->install($name);
@@ -138,13 +143,30 @@ class StarterKitInstaller
         $dbUser = $this->io->ask('Database username', 'root');
         $dbPass = $this->io->askHidden('Database password') ?? '';
 
+        // Update .env file with DB credentials
+        $this->_updateEnvFile(
+            $name,
+            [
+                'export DB_HOST' => $dbHost,
+                'export DB_PORT' => $dbPort,
+                'export DB_DATABASE' => $dbName,
+                'export DB_USERNAME' => $dbUser,
+                'export DB_PASSWORD' => $dbPass,
+            ]
+        );
+
+        $this->io->success('Database configuration saved to .env!');
+
         // Try to create the database if it does not exist (MySQL/MariaDB)
         try {
             $dsn = "mysql:host=$dbHost;port=$dbPort;charset=utf8mb4";
             // Create PDO connection
             $pdo = new \PDO(
-                $dsn, $dbUser, $dbPass, [
-                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                $dsn,
+                $dbUser,
+                $dbPass,
+                [
+                    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
                 ]
             );
             // Check if the database already exists
@@ -160,18 +182,30 @@ class StarterKitInstaller
             // Warn if unable to create or check the database
             $this->io->warning("Could not check or create database: " . $e->getMessage());
         }
+    }
 
-        // Update .env file with DB credentials
+    /**
+     * Update the security salt and debug value in the .env file.
+     *
+     * @param  string $projectPath Path to the project directory
+     * @return void
+     */
+    private function _updateSecurityAndDebug(string $projectPath): void
+    {
+        // Generate a random 32-character salt
+        $salt = bin2hex(random_bytes(32));
+
+        // Prompt user for debug value, default to 'false'
+        $debug = $this->io->ask('Set debug mode? (true/false)', 'false');
+
         $this->_updateEnvFile(
-            $name, [
-            'export DB_HOST' => $dbHost,
-            'export DB_PORT' => $dbPort,
-            'export DB_DATABASE' => $dbName,
-            'export DB_USERNAME' => $dbUser,
-            'export DB_PASSWORD' => $dbPass,
+            $projectPath,
+            [
+                'export SECURITY_SALT' => $salt,
+                'export DEBUG' => $debug,
             ]
         );
-        $this->io->success('Database configuration saved to .env!');
+        $this->io->success('Security salt and debug value updated in .env!');
     }
 
     /**
@@ -189,18 +223,19 @@ class StarterKitInstaller
         $smtpPort = $this->io->ask('SMTP Port', '587');
         $smtpUser = $this->io->ask('SMTP Username');
         $smtpPass = $this->io->askHidden('SMTP Password');
-        $smtpClient = $this->io->ask('SMTP Client', '');
+        $smtpClient = $this->io->ask('SMTP Client', null);
 
         // Update .env file with SMTP credentials
         $this->_updateEnvFile(
-            $name, [
-            'export EMAIL_TRANSPORT_HOST' => $smtpHost,
-            'export EMAIL_TRANSPORT_PORT' => $smtpPort,
-            'export EMAIL_TRANSPORT_USERNAME' => $smtpUser,
-            'export EMAIL_TRANSPORT_PASSWORD' => $smtpPass,
-            'export EMAIL_TRANSPORT_CLIENT' => $smtpClient,
-            'export EMAIL_FROM' => $smtpUser,
-            // Optionally add EMAIL_FROM, EMAIL_TRANSPORT, etc.
+            $name,
+            [
+                'export EMAIL_TRANSPORT_HOST' => $smtpHost,
+                'export EMAIL_TRANSPORT_PORT' => $smtpPort,
+                'export EMAIL_TRANSPORT_USERNAME' => $smtpUser,
+                'export EMAIL_TRANSPORT_PASSWORD' => $smtpPass,
+                'export EMAIL_TRANSPORT_CLIENT' => $smtpClient,
+                'export EMAIL_FROM' => $smtpUser,
+                // Optionally add EMAIL_FROM, EMAIL_TRANSPORT, etc.
             ]
         );
         $this->io->success('Email configuration saved to .env!');
@@ -217,11 +252,9 @@ class StarterKitInstaller
         $this->io->section('Running Database Migrations');
 
         $this->io->text('Running migrations...');
-        $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-        $cakeCmd = $isWindows ? ['php', 'bin/cake'] : ['bin/cake'];
 
         // Run the migrations command in the project directory
-        $process = new Process(array_merge($cakeCmd, ['migrations', 'migrate', '-n']), $name);
+        $process = new Process(['bin/cake', 'migrations', 'migrate'], $name);
         $process->setTimeout(120);
         $process->run(
             function ($type, $buffer) {
@@ -247,19 +280,23 @@ class StarterKitInstaller
     private function _updateEnvFile(string $projectPath, array $envVars): void
     {
         $envFile = $projectPath . '/config/.env';
+
         // Prefer config/.env.example, fallback to .env.example in root
         $envExample = file_exists($projectPath . '/config/.env.example')
             ? $projectPath . '/config/.env.example'
             : $projectPath . '/.env.example';
+
         // If .env does not exist, copy from example
         if (!file_exists($envFile) && file_exists($envExample)) {
             copy($envExample, $envFile);
         }
+
         $lines = [];
         if (file_exists($envFile)) {
             // Read all lines from the .env file
             $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         }
+
         $envMap = [];
         // Parse existing .env lines into key-value pairs
         foreach ($lines as $line) {
@@ -268,42 +305,28 @@ class StarterKitInstaller
                 $envMap[$k] = $v;
             }
         }
+
         // Overwrite or add new env vars
         foreach ($envVars as $k => $v) {
             $envMap[$k] = $v;
         }
+
         $newLines = [];
         // Rebuild the .env file content
         foreach ($envMap as $k => $v) {
             $newLines[] = $k . '=' . $v;
         }
+
         $envContent = implode(PHP_EOL, $newLines) . PHP_EOL;
+
         // Write the new content to the .env file
         $result = @file_put_contents($envFile, $envContent);
         if ($result === false) {
-            $this->io->warning("Could not write to $envFile. The file may be locked or in use by another process. Please close any editors or Composer processes and try again.");
+            $this->io->warning(
+                "Could not write to $envFile. 
+                The file may be locked or in use by another process. 
+                Please close any editors or Composer processes and try again."
+            );
         }
     }
-
-    /**
-     * Update the security salt and debug value in the .env file.
-     *
-     * @param string $projectPath Path to the project directory
-     * @return void
-     */
-    private function _updateSecurityAndDebug(string $projectPath): void
-    {
-        // Generate a random 32-character salt
-        $salt = bin2hex(random_bytes(32));
-        // Prompt user for debug value, default to 'false'
-        $debug = $this->io->ask('Set debug mode? (true/false)', 'false');
-        $this->_updateEnvFile(
-            $projectPath,
-            [
-                'export SECURITY_SALT' => $salt,
-                'export DEBUG' => $debug,
-            ]
-        );
-        $this->io->success('Security salt and debug value updated in .env!');
-    }
-} 
+}

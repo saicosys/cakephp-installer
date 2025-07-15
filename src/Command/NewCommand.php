@@ -9,9 +9,9 @@ declare(strict_types=1);
 * Redistributions of files must retain the above copyright notice.
 *
 * @copyright Copyright (c) 2015-present Saicosys Technologies
-* @link https://www.saicosys.com
-* @since 1.0.0
-* @license MIT License (https://opensource.org/licenses/mit-license.php )
+* @link      https://www.saicosys.com
+* @since     1.0.0
+* @license   MIT License (https://opensource.org/licenses/mit-license.php )
 */
 namespace Saicosys\Installer\Command;
 
@@ -99,7 +99,7 @@ class NewCommand extends Command
     /**
      * Execute the command to create a new CakePHP application.
      *
-     * @param  \Symfony\Component\Console\Input\InputInterface  $input  The input interface
+     * @param  \Symfony\Component\Console\Input\InputInterface   $input  The input interface
      * @param  \Symfony\Component\Console\Output\OutputInterface $output The output interface
      * @return int Command exit status
      */
@@ -121,6 +121,7 @@ class NewCommand extends Command
         if (is_dir($name)) {
             if (!$force) {
                 $io->error("Directory '{$name}' already exists. Use --force to overwrite.");
+
                 return Command::FAILURE;
             } else {
                 $io->warning("Directory '{$name}' already exists. Removing it...");
@@ -172,6 +173,7 @@ class NewCommand extends Command
         } catch (\Exception $e) {
             // Handle installation errors
             $io->error('Installation failed: ' . $e->getMessage());
+
             return Command::FAILURE;
         }
     }

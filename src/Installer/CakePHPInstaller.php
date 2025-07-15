@@ -9,9 +9,9 @@ declare(strict_types=1);
 * Redistributions of files must retain the above copyright notice.
 *
 * @copyright Copyright (c) 2015-present Saicosys Technologies
-* @link https://www.saicosys.com
-* @since 1.0.0
-* @license MIT License (https://opensource.org/licenses/mit-license.php )
+* @link      https://www.saicosys.com
+* @since     1.0.0
+* @license   MIT License (https://opensource.org/licenses/mit-license.php )
 */
 namespace Saicosys\Installer\Installer;
 
@@ -69,6 +69,7 @@ class CakePHPInstaller
         );
         
         $process->setTimeout(300);
+
         // Run the process and stream output to the console
         $process->run(
             function ($type, $buffer) {

@@ -2,17 +2,18 @@
 declare(strict_types=1);
 
 /**
-* Copyright (c) 2017-present Saicosys Technologies (https://www.saicosys.com)
-*
-* Licensed under The MIT License
-* For full copyright and license information, please see the LICENSE.md
-* Redistributions of files must retain the above copyright notice.
-*
-* @copyright Copyright (c) 2015-present Saicosys Technologies
-* @link https://www.saicosys.com
-* @since 1.0.0
-* @license MIT License (https://opensource.org/licenses/mit-license.php )
-*/
+ * Copyright (c) 2017-present Saicosys Technologies (https://www.saicosys.com)
+ *
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.md
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @copyright Copyright (c) 2015-present Saicosys Technologies
+ * @link      https://www.saicosys.com
+ * @since     1.0.0
+ * @license   MIT License (https://opensource.org/licenses/mit-license.php )
+ */
+
 namespace Saicosys\Installer\Service;
 
 use Saicosys\Installer\Util\DirectoryHelper;
@@ -55,14 +56,18 @@ class SaasStarterKitService implements StarterKitServiceInterface
     public function install(string $name): void
     {
         $this->io->text('Installing SAAS starter kit from GitHub...');
-        
+
         // Clone the SAAS starter kit repository from GitHub
         $process = new Process(
             [
-            'git', 'clone', 'https://github.com/sandeep-kadyan/cakephp-starter-kit.git', $name
+                'git',
+                'clone',
+                'https://github.com/sandeep-kadyan/cakephp-starter-kit.git',
+                $name
             ]
         );
         $process->setTimeout(300);
+
         // Run the git clone process and stream output
         $process->run(
             function ($type, $buffer) {
@@ -85,12 +90,14 @@ class SaasStarterKitService implements StarterKitServiceInterface
         $this->io->text('Installing Composer dependencies...');
         $process = new Process(['composer', 'install'], $name);
         $process->setTimeout(300);
+
         // Run the composer install process and stream output
         $process->run(
             function ($type, $buffer) {
                 $this->io->write($buffer);
             }
         );
+
         if (!$process->isSuccessful()) {
             // Throw if Composer install fails
             throw new \RuntimeException('Failed to install Composer dependencies: ' . $process->getErrorOutput());
@@ -124,11 +131,8 @@ class SaasStarterKitService implements StarterKitServiceInterface
             );
         }
 
-        // Automate folder permissions prompt if needed
-        $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-        $cakeCmd = $isWindows ? ['php', 'bin/cake'] : ['bin/cake'];
-        // Suppress output for CakePHP setup
-        $process = new Process(array_merge($cakeCmd, ['setup', '-n']), $name);
+        // Automate folder permissions prompt if needed and suppress output for CakePHP setup
+        $process = new Process(['bin/cake', 'setup', '-n'], $name);
         $process->setInput("Y\n");
         $process->setTimeout(120);
         $process->run();
