@@ -105,7 +105,7 @@ class StarterKitInstaller
 
             // After install, configure DB, email, migrations
             $this->_configureDatabase($name);
-            $this->_updateSecurityAndDebug($name);
+            $this->_updateSecurity($name);
             $this->_configureEmail($name);
             $this->_runMigrations($name);
 
@@ -192,27 +192,23 @@ class StarterKitInstaller
     }
 
     /**
-     * Update the security salt and debug value in the .env file.
+     * Update the security salt value in the .env file.
      *
      * @param  string $projectPath Path to the project directory
      * @return void
      */
-    private function _updateSecurityAndDebug(string $projectPath): void
+    private function _updateSecurity(string $projectPath): void
     {
         // Generate a random 32-character salt
         $salt = bin2hex(random_bytes(32));
-
-        // Prompt user for debug value, default to 'false'
-        $debug = $this->io->ask('Set debug mode? (true/false)', 'false');
 
         $this->_updateEnvFile(
             $projectPath,
             [
                 'export SECURITY_SALT' => $salt,
-                'export DEBUG' => $debug,
             ]
         );
-        $this->io->success('Security salt and debug value updated in .env!');
+        $this->io->success('Security salt value updated in .env!');
     }
 
     /**
@@ -369,7 +365,7 @@ class StarterKitInstaller
 
         // Overwrite or add new env vars
         foreach ($envVars as $k => $v) {
-            $envMap[$k] = $v;
+            $envMap[$k] = '"' . trim((string)($v ?? ''), '"') . '"';
         }
 
         $newLines = [];
