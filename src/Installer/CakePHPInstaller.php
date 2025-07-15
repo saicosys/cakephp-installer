@@ -2,17 +2,19 @@
 declare(strict_types=1);
 
 /**
-* Copyright (c) 2017-present Saicosys Technologies (https://www.saicosys.com)
-*
-* Licensed under The MIT License
-* For full copyright and license information, please see the LICENSE.md
-* Redistributions of files must retain the above copyright notice.
-*
-* @copyright Copyright (c) 2015-present Saicosys Technologies
-* @link      https://www.saicosys.com
-* @since     1.0.0
-* @license   MIT License (https://opensource.org/licenses/mit-license.php )
-*/
+ * Saicosys Technologies Private Limited
+ * Copyright (c) 2017-2025, Saicosys Technologies
+ *
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.md
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @author    Saicosys <info@saicosys.com>
+ * @copyright Copyright (c) 2017-2025, Saicosys Technologies
+ * @license   https://opensource.org/licenses/mit-license.php MIT License
+ * @link      https://www.saicosys.com
+ * @since     1.0.0
+ */
 namespace Saicosys\Installer\Installer;
 
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -29,7 +31,13 @@ use Symfony\Component\Process\Process;
  * Global Usage:
  *   cakephp new <name>
  *
- * @package Saicosys\Installer
+ * @category  Plugin
+ * @package   Saicosys/Installer
+ * @author    Saicosys <info@saicosys.com>
+ * @copyright Copyright (c) 2017-2025, Saicosys Technologies
+ * @license   https://opensource.org/licenses/mit-license.php MIT License
+ * @link      https://www.saicosys.com
+ * @since     1.0.0
  */
 class CakePHPInstaller
 {

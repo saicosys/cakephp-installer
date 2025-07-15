@@ -2,18 +2,19 @@
 declare(strict_types=1);
 
 /**
- * Copyright (c) 2017-present Saicosys Technologies (https://www.saicosys.com)
+ * Saicosys Technologies Private Limited
+ * Copyright (c) 2017-2025, Saicosys Technologies
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.md
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright Copyright (c) 2015-present Saicosys Technologies
+ * @author    Saicosys <info@saicosys.com>
+ * @copyright Copyright (c) 2017-2025, Saicosys Technologies
+ * @license   https://opensource.org/licenses/mit-license.php MIT License
  * @link      https://www.saicosys.com
  * @since     1.0.0
- * @license   MIT License (https://opensource.org/licenses/mit-license.php )
  */
-
 namespace Saicosys\Installer\Service;
 
 use Saicosys\Installer\Util\DirectoryHelper;
@@ -25,7 +26,13 @@ use Symfony\Component\Process\Process;
  *
  * Handles cloning, dependency installation, asset building, and setup automation.
  *
- * @package Saicosys\Installer
+ * @category  Plugin
+ * @package   Saicosys/Installer
+ * @author    Saicosys <info@saicosys.com>
+ * @copyright Copyright (c) 2017-2025, Saicosys Technologies
+ * @license   https://opensource.org/licenses/mit-license.php MIT License
+ * @link      https://www.saicosys.com
+ * @since     1.0.0
  */
 class SaasStarterKitService implements StarterKitServiceInterface
 {
@@ -131,8 +138,11 @@ class SaasStarterKitService implements StarterKitServiceInterface
             );
         }
 
+        $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+        $cakeCmd = $isWindows ? ['php', 'bin/cake'] : ['bin/cake'];
+
         // Automate folder permissions prompt if needed and suppress output for CakePHP setup
-        $process = new Process(['bin/cake', 'setup', '-n'], $name);
+        $process = new Process(array_merge($cakeCmd, ['setup', '-n']), $name);
         $process->setInput("Y\n");
         $process->setTimeout(120);
         $process->run();

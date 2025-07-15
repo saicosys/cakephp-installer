@@ -1,5 +1,6 @@
 #!/usr/bin/env php
 <?php
+
 /**
  * CakePHP Installer CLI Entrypoint
  *
@@ -9,12 +10,13 @@
  * Usage:
  *   php bin/cakephp [command]
  *
- * @package   Saicosys\Installer
- * @author    Sandeep Kadyan <sandeepkadyan91@gmail.com>
- * @copyright Copyright (c) 2015-present Saicosys Technologies
- * @link https://www.saicosys.com
- * @since 1.0.0
- * @license MIT License (https://opensource.org/licenses/mit-license.php )
+ * @category  Plugin
+ * @package   Saicosys/Installer
+ * @author    Saicosys <info@saicosys.com>
+ * @copyright Copyright (c) 2017-2025, Saicosys Technologies
+ * @license   https://opensource.org/licenses/mit-license.php MIT License
+ * @link      https://www.saicosys.com
+ * @since     1.0.0
  */
 
 // Try to load the Composer autoloader from various possible locations

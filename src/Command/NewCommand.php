@@ -2,17 +2,19 @@
 declare(strict_types=1);
 
 /**
-* Copyright (c) 2017-present Saicosys Technologies (https://www.saicosys.com)
-*
-* Licensed under The MIT License
-* For full copyright and license information, please see the LICENSE.md
-* Redistributions of files must retain the above copyright notice.
-*
-* @copyright Copyright (c) 2015-present Saicosys Technologies
-* @link      https://www.saicosys.com
-* @since     1.0.0
-* @license   MIT License (https://opensource.org/licenses/mit-license.php )
-*/
+ * Saicosys Technologies Private Limited
+ * Copyright (c) 2017-2025, Saicosys Technologies
+ *
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.md
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @author    Saicosys <info@saicosys.com>
+ * @copyright Copyright (c) 2017-2025, Saicosys Technologies
+ * @license   https://opensource.org/licenses/mit-license.php MIT License
+ * @link      https://www.saicosys.com
+ * @since     1.0.0
+ */
 namespace Saicosys\Installer\Command;
 
 use Saicosys\Installer\Installer\CakePHPInstaller;
@@ -27,18 +29,15 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Command to create a new CakePHP application via CLI.
+ * NewCommand class for CakePHP installer.
  *
- * This command provides options for manual installation or using a starter kit.
- * It handles directory checks, user prompts, and delegates installation to the appropriate installer class.
- *
- * Local Usage:
- *   php bin/cakephp new <name> [--starter-kit=<kit>] [--force]
- * 
- * Global Usage:
- *   cakephp new <name> [--starter-kit=<kit>] [--force]
- *
- * @package Saicosys\Installer
+ * @category  Plugin
+ * @package   Saicosys/Installer
+ * @author    Saicosys <info@saicosys.com>
+ * @copyright Copyright (c) 2017-2025, Saicosys Technologies
+ * @license   https://opensource.org/licenses/mit-license.php MIT License
+ * @link      https://www.saicosys.com
+ * @since     1.0.0
  */
 class NewCommand extends Command
 {
@@ -92,7 +91,13 @@ class NewCommand extends Command
                 'Overwrite existing directory'
             )
             ->setHelp(
-                'This command creates a new CakePHP application with optional starter kit.'
+                "This command creates a new CakePHP application.\n\n" .
+                "Available options:\n" .
+                "  --starter-kit=<kit>  Specify the starter kit to use (e.g., 'saas', 'simple').\n" .
+                "  --force              Overwrite existing directory if it exists.\n" .
+                "\nExample usage:\n" .
+                "  php bin/cakephp new <name> --starter-kit=saas\n" .
+                "  php bin/cakephp new <name> --force\n"
             );
     }
 
@@ -101,7 +106,7 @@ class NewCommand extends Command
      *
      * @param  \Symfony\Component\Console\Input\InputInterface   $input  The input interface
      * @param  \Symfony\Component\Console\Output\OutputInterface $output The output interface
-     * @return int Command exit status
+     * @return int
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
@@ -182,7 +187,7 @@ class NewCommand extends Command
      * Prompt the user to select a starter kit from available options.
      *
      * @param  \Symfony\Component\Console\Style\SymfonyStyle $io The SymfonyStyle IO helper
-     * @return string The selected starter kit key
+     * @return string
      */
     private function _selectStarterKit(SymfonyStyle $io): string
     {
@@ -214,12 +219,12 @@ class NewCommand extends Command
     private function _displayLogo(SymfonyStyle $io): void
     {
         $logo = <<<LOGO
-   ____       _        ____   _   _ ____  
-  / ___|  ___| | _____|  _  \| | | |  _ \ 
- | |     / _ \ |/ / _ \| |_) | |_| | |_) |
- | |___ |  __/   <  __/|  __/|  _  |  __/ 
-  \____| \___|_|\_\___|_|    |_| |_| |  
-LOGO;
+        ____       _        ____   _   _ ____  
+        / ___|  ___| | _____|  _  \| | | |  _ \ 
+        | |     / _ \ |/ / _ \| |_) | |_| | |_) |
+        | |___ |  __/   <  __/|  __/|  _  |  __/ 
+        \____| \___|_|\_\___|_|    |_| |_| |  
+        LOGO;
 
         // Output the logo in green color
         $io->writeln('<fg=green>' . $logo . '</>');

@@ -2,18 +2,19 @@
 declare(strict_types=1);
 
 /**
- * Copyright (c) 2017-present Saicosys Technologies (https://www.saicosys.com)
+ * Saicosys Technologies Private Limited
+ * Copyright (c) 2017-2025, Saicosys Technologies
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.md
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright Copyright (c) 2015-present Saicosys Technologies
+ * @author    Saicosys <info@saicosys.com>
+ * @copyright Copyright (c) 2017-2025, Saicosys Technologies
+ * @license   https://opensource.org/licenses/mit-license.php MIT License
  * @link      https://www.saicosys.com
  * @since     1.0.0
- * @license   MIT License (https://opensource.org/licenses/mit-license.php )
  */
-
 namespace Saicosys\Installer\Installer;
 
 use Saicosys\Installer\Service\SaasStarterKitService;
@@ -33,7 +34,13 @@ use Symfony\Component\Process\Process;
  * Global Usage:
  *   cakephp new <name> --starter-kit=<kit>
  *
- * @package Saicosys\Installer
+ * @category  Plugin
+ * @package   Saicosys/Installer
+ * @author    Saicosys <info@saicosys.com>
+ * @copyright Copyright (c) 2017-2025, Saicosys Technologies
+ * @license   https://opensource.org/licenses/mit-license.php MIT License
+ * @link      https://www.saicosys.com
+ * @since     1.0.0
  */
 class StarterKitInstaller
 {
@@ -250,23 +257,77 @@ class StarterKitInstaller
     private function _runMigrations(string $name): void
     {
         $this->io->section('Running Database Migrations');
-
         $this->io->text('Running migrations...');
 
-        // Run the migrations command in the project directory
-        $process = new Process(['bin/cake', 'migrations', 'migrate'], $name);
-        $process->setTimeout(120);
-        $process->run(
-            function ($type, $buffer) {
-                // Output migration progress to the console
-                $this->io->write($buffer);
-            }
-        );
+        $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+        $projectDir = realpath($name);
+        if ($projectDir === false) {
+            $this->io->warning("Project directory '$name' not found.");
+            return;
+        }
 
-        if ($process->isSuccessful()) {
+        $success = false;
+        $errorOutput = '';
+        $commandLine = '';
+        $workingDir = $projectDir;
+
+        if ($isWindows) {
+            // Try bin/cake.bat first
+            $cakeCmd = ['bin/cake.bat', 'migrations', 'migrate'];
+            $process = new Process($cakeCmd, $projectDir);
+            $process->setTimeout(120);
+            $process->run(
+                function ($type, $buffer) {
+                    $this->io->write($buffer);
+                }
+            );
+            if ($process->isSuccessful()) {
+                $success = true;
+            } else {
+                $errorOutput = $process->getErrorOutput();
+                $commandLine = $process->getCommandLine();
+                // Try php bin/cake.php as fallback
+                $cakeCmd = ['php', 'bin/cake.php', 'migrations', 'migrate'];
+                $process = new Process($cakeCmd, $projectDir);
+                $process->setTimeout(120);
+                $process->run(
+                    function ($type, $buffer) {
+                        $this->io->write($buffer);
+                    }
+                );
+                if ($process->isSuccessful()) {
+                    $success = true;
+                } else {
+                    $errorOutput = $process->getErrorOutput();
+                    $commandLine = $process->getCommandLine();
+                }
+            }
+        } else {
+            // Unix: use bin/cake
+            $cakeCmd = ['bin/cake', 'migrations', 'migrate'];
+            $process = new Process($cakeCmd, $projectDir);
+            $process->setTimeout(120);
+            $process->run(
+                function ($type, $buffer) {
+                    $this->io->write($buffer);
+                }
+            );
+            if ($process->isSuccessful()) {
+                $success = true;
+            } else {
+                $errorOutput = $process->getErrorOutput();
+                $commandLine = $process->getCommandLine();
+            }
+        }
+
+        if ($success) {
             $this->io->success('Migrations completed successfully!');
         } else {
-            $this->io->warning('Migrations failed: ' . $process->getErrorOutput());
+            $this->io->warning(
+                'Migrations failed: ' . $errorOutput .
+                "\nCommand: " . $commandLine .
+                "\nWorking dir: " . $workingDir
+            );
         }
     }
 
